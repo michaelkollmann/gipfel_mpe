@@ -66,8 +66,11 @@ jobs:
 
       # The build context is only the Dockerfile, the entrypoint and
       # requirements-dev.txt (.dockerignore), so no firmware reaches the cache.
+      # No build-record artifact: CI uploads nothing but the release's page.
       - name: Build the dev image
         uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: .
           file: docker/Dockerfile
