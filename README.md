@@ -124,6 +124,7 @@ instructions the AI agent follows in this repository.
 | `docker/`, `scripts/dev`, `scripts/check`, `.github/workflows/` | The dev image (pinned Arm toolchain, LLVM, Python, Node; arm64 and amd64), the wrapper that runs builds and tests in it, the CI entry point, and the CI and release workflows |
 | `patches/mpe/` | The MPE patch: C sources and the patch definition (hooks, byte patches) |
 | `patches/version_string.py`, `patches/version_word.py`, `patches/demo_note_hook/` | Minimal patches that test the toolchain and the bootloader |
+| `patches/osc_fine_fix.py` | A stock bug fix, separate from MPE: Osc Fine −100 to −73 over MIDI ([findings](docs/findings/summit-2.2-build2121.md#osc-fine-over-midi-100-to-73-rejected)) |
 | `tools/patch.py`, `tools/patch_build.py` | Build a patched `.syx` from the official file and a definition ([docs/patch-howto.md](docs/patch-howto.md)) |
 | `tools/flash.py` | Firmware updater (the Components protocol), with a dry run against a simulated synth |
 | `tools/syx.py`, `tools/find_base.py` | Decode, encode and inspect update files |
