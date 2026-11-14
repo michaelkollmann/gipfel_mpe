@@ -210,6 +210,39 @@ The ±24 per-oscillator patch range can't express ±48, so the per-note bend has
 to be scaled by the patch code (fold it into `0x67` pitch, or into per-voice
 `0x68`/`0x69` if the FPGA accepts them).
 
+### Osc Fine over MIDI: −100 to −73 rejected
+
+A stock bug, unrelated to MPE; the fix is `patches/osc_fine_fix.py`.
+
+Osc Fine is a CC pair: CC 15/18/21 carries the coarse byte (patch offsets
+`0x033`/`0x048`/`0x05D`), CC 47/50/53 the fine byte. The coarse byte runs
+14–114 for −100…+100: the Summit's own Fine knob at −100 sends MSB 14,
+LSB 0. NRPN 0:15 is not Osc 1 Fine: its pnum `0x8F` maps to offset `0x039`
+(observed, `patch_param_offset` table).
+
+`param_set_from_midi` `0x08010038` compares the value with the descriptor's
+`min` at `0x08010078` (`cmp r5, r3`, r3 = byte 0 of the 12-byte record read
+through the literal `0x20002A4C`) and with `max` at `0x0801007C`, and drops
+it outside that range (observed). The three coarse-byte descriptors hold
+**28–228** (`1C E4`), so values 14–27, Fine −100 to −73, are dropped and the
+parameter keeps its previous value:
+
+| Parameter | CC | Descriptor (flash) | Stock bytes |
+|---|---|---|---|
+| Osc 1 Fine | 15 | `0x0804EA30` (`patch_param_desc[0x033]`) | `1C E4 FE 0F` |
+| Osc 2 Fine | 18 | `0x0804EB2C` (`patch_param_desc[0x048]`) | `1C E4 FE 12` |
+| Osc 3 Fine | 21 | `0x0804EC28` (`patch_param_desc[0x05D]`) | `1C E4 FE 15` |
+
+The fix sets each `min` to 14 (`0x1C` → `0x0E`). Emulated in
+`tests/test_osc_fine_fix.py`: through `cc` `0x080102C0`, values 0–27 are
+dropped on stock and 0–13 on the patched image; 14–127 are stored as sent,
+and 28–127 give the same byte on both. `max` stays 228, so 115–127 (above
++100) are still accepted, as on stock. The front panel, the display and a
+saved and reloaded patch were checked unchanged with Fine at −100…+100 in a
+separate main-loop emulation (emulated, not in this repository's tests).
+Peak 2.2 has the same three descriptors and the same check
+([peak-2.2-build2108.md](peak-2.2-build2108.md)).
+
 ## Settings menu, global settings, save and load
 
 All the menu tables are in `.data`, so they're in RAM and patchable through

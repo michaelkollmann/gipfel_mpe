@@ -13,6 +13,7 @@ llvm-objdump disassembly (`scripts/disasm.sh`), not a decompiler.
 | USB-MIDI packet → TX FIFO | `0x0801D440` | inferred | Writes 4 bytes to an endpoint FIFO: MIDI **out** / thru path, not input |
 | SysEx receive state machine | `0x08019114` | observed | Matches the Novation header, `0x7F` command byte |
 | SysEx command switch | `0x0800D040` | observed | 9-way `tbb`; some cases loop over `0x4F` entries (patch/parameter dumps?) |
+| Osc Fine MIDI range check | `0x0800F6AC`, compare `0x0800F6EC`; descriptors `0x08046C40`, `0x08046D3C`, `0x08046E38` | emulated; fix observed on hardware | Same bug as the Summit ([Osc Fine over MIDI](summit-2.2-build2121.md#osc-fine-over-midi-100-to-73-rejected)): `min` 28 drops CC 15/18/21 values 14–27 (Fine −100 to −73). With each `min` set to 14, a Peak running the modified image accepts the full range |
 | Front-panel pot scanning | `0x0800E054`, dead-zone helper `0x0800E024` | inferred | ADC values with a centre-detent dead zone (`±0x1F0`); not MIDI |
 
 ## Dead ends
